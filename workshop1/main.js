@@ -18,12 +18,46 @@ const app = express()
 
 app.use(morgan("common"))
 
-// Games
+// Games (find all games)
 // TODO GET /games
+app.get('/games', async(req, resp) => {
+	const limit = parseInt(req.query.limit) || 10
+	const offset = parseInt(req.query.offset) || 0
 
+	const games = await findAllGames(offset, limit)
+	const result = []
+
+	for (const g of games) {
+		result.push(`/game/${g.id}`)
+	}
+
+	//200 OK + content type in resp header
+	resp.status(200)
+	resp.type('application/json')
+	//custom header --> x is convention for non-conventional headers, everything in string 
+	//resp.set("X-test", "test")
+	resp.json(result)
+
+	return
+})
 
 // TODO GET /game/<game_id>
+app.get("/game/:gameId",async(req, resp) => {
+	const gameId = req.params.gameId
+	const result = await findGameById(gameId)
+	
+	resp.type('application/json')
 
+	if(!result) {
+		resp.status(404)
+		resp.json({error: `Cannot find game with gameId ${ganeId}`})
+		return
+	}
+
+	resp.status(200)
+	resp.json(result)
+
+})
 
 app.get('/games/search', async (req, resp) => {
 	const q = req.query.q

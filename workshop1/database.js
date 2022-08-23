@@ -1,10 +1,12 @@
 import { Database } from 'fakebase'
 
-const db = new Database("./data/bgg")
+const db = new Database("/Users/meiannn/Documents/REST API Course/API_course/data/bgg")
 const Games = db.table("game")
 const Comments = db.table("comment")
 
 export const findAllGames = (offset = 0, limit = 10) => {
+	// console.log(db)
+
 	return Games.findAll()
 		.then(result => result.slice(offset, offset + limit))
 }
