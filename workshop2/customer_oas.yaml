@@ -1,0 +1,128 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Customer OAS
+servers:
+  - url: http://localhost:3000
+    description: Development Server
+
+  - url: http://localhost:8080
+    description: Reverse Proxy
+
+paths:
+  /customers:
+    get:
+      description: 
+        Returns all the customers from the system that the user has access to
+      operationId: findCusts
+      parameters:
+        - name: limit
+          in: query
+          description: maximum number of results to be returned
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: offset
+          in: query
+          description: number of items to skip from the first items
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        200:
+          description: return customer record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+
+
+  /customer/{custId}:
+    get:
+      description: returns a user as identified by {id}
+      operationId: getCustById
+      parameters:
+        - name: custId
+          in: path
+          required: true
+          schema:
+            type: number
+            format: int32
+            minimum: 100
+      responses:
+        200:
+          description: customer response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+
+        404:
+          description: customer not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /customer:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Customer"
+
+      responses:
+        201:
+          description: New Customer Added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerAdded"
+        400:
+          description: Cannot create new customer
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Customer:
+      type: object
+      properties:
+        customerId:
+          type: number
+          format: Int32
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+    
+    CustomerAdded:
+      type: object
+      properties:
+        customerId:
+          type: number
+          format: int32
+          minimum: 100
+        message:
+          type: string
+        time:
+          type: number
+          format: int64
+      required:
+      - customerId
+      - message
+      - time
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+      - message 

@@ -1,0 +1,40 @@
+:8080 {
+
+	@api {
+		path /api/*
+	}
+
+	@openapi {
+		path /openapi
+	}
+
+	reverse_proxy @api {
+		to localhost:3000
+	}
+
+	route @openapi {
+		rewrite @openapi /customer_oas.yaml
+		root .
+		file_server 
+	}
+
+	route @api {
+
+		uri strip_prefix /api
+
+		openapi {
+			spec ./customer_oas.yaml
+			check {
+				req_body
+				resp_body
+			}
+			log_error
+		}
+	}
+
+	handle_errors {
+		respond @api "Resource: {http.request.orig_uri}. Error: {openapi.error}" {openapi.status_code} {
+			close
+		}
+	}
+}
