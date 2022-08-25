@@ -1,0 +1,95 @@
+Q1
+query {
+    viewer {
+        login
+        name
+        url
+    }
+}
+
+
+Q2
+query{
+    viewer{
+        login
+        repositories(first:50, orderBy: {direction: DESC, field: CREATED_AT}){
+            nodes{
+                name
+                description
+                url
+                forkCount
+            }
+        }
+    }
+}
+
+Q3
+query{
+  user(login:"Angular") {
+    bio
+    name
+    email
+  }
+}
+
+
+# TODO: include topic parameter in search
+Q4
+query SearchRepository($user: String!){
+	search(first: 20, query: $user, type: REPOSITORY, ) {
+		nodes {
+			... on Repository {
+                name
+                url
+                description
+      }
+    }
+  }
+}
+
+Q5
+query SearchRepository($query: String!, $type: SearchType!, $limit: Int! ) {
+  search( first: $limit, query: $query, type: $type) {
+    nodes {
+      ... on Repository {
+        name
+        url
+        description
+      }
+      ... on Discussion {
+        author {
+          login
+        }
+        body
+        answer {
+          id
+        }
+      }
+    }
+  }
+}
+
+Q6
+# create new branch
+mutation{
+  createRepository(input: {name: "testrepo", visibility: PRIVATE}) {
+    repository{
+      id     
+    }
+  }
+}
+
+# create branch protection rule on main
+mutation {
+    createBranchProtectionRule(
+        input: {repositoryId: "MDEwOlJlcG9zaXRvcnkyMDM1MzQyMjA=", 
+        pattern: "main", 
+        requiresApprovingReviews: true, 
+        requiresApprovingReviewCount: 2, 
+        allowsDeletions: false}) {
+    clientMutationId
+    }
+}
+
+Q7
+curl -X POST -H 'Authorization: Bearer <token>' --data-binary@<filename> https://api/github.com/graphql
