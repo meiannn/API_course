@@ -33,7 +33,6 @@ query{
 }
 
 
-# TODO: include topic parameter in search
 Q4
 query SearchRepository($user: String!){
 	search(first: 20, query: $user, type: REPOSITORY, ) {

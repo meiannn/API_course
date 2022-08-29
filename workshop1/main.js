@@ -88,7 +88,36 @@ app.get('/games/count', async (req, resp) => {
 
 // Comments
 // TODO POST /comment
+pp.post('/comment', express.json(), async (req, resp) => {
+	const payload = req.body
 
+	resp.type('application/json')
+	for (const field of [ 'user', 'rating', 'c_text', 'gid' ])
+		if (!payload[field]) {
+			resp.status(400)
+			resp.json(mkError(`Missing ${field} property` ))
+			return 
+		}
+	
+	//verify rating
+	if ((payload.rating < 1) || (payload.rating > 10)) {
+		resp.status(400)
+		resp.json(mkError(`Valid rating range is between 1 and 10 (inclusive)`))
+		return 
+	}
+
+	//verify if game exists
+	const game = await findGameById(payload.gid)
+	if (!game)  {
+		resp.status(400)
+		resp.json(mkError(`Cannot find game id ${payload.gid}`))
+		return 
+	}
+
+	const id = await insertComment(payload)
+	// Return the new comment id to the user
+	return resp.status(200).json({ id })
+})
 
 app.get('/game/:gameId/comments', async (req, resp) => {
 	const gameId = parseInt(req.params.gameId)
